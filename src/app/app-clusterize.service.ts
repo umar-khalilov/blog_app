@@ -1,9 +1,9 @@
-import { cpus } from 'node:os';
+import { availableParallelism } from 'node:os';
 import cluster, { Worker } from 'node:cluster';
 import { Logger } from '@nestjs/common';
 
 export class AppClusterizeService {
-    private static readonly numberOfCores: number = cpus().length;
+    private static readonly numberOfCores: number = availableParallelism();
     private static readonly logger = new Logger(AppClusterizeService.name);
 
     static runInCluster(callback: () => Promise<void>): void {
