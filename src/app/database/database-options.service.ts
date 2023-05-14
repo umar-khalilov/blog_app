@@ -10,7 +10,7 @@ import { Environment } from '../constants/environment.enum';
 @Injectable()
 export class DatabaseOptionsService implements TypeOrmOptionsFactory {
     @Inject(ConfigService)
-    private readonly config!: ConfigService;
+    private readonly config: ConfigService;
 
     async createTypeOrmOptions(): Promise<TypeOrmModuleAsyncOptions> {
         return {
@@ -20,7 +20,7 @@ export class DatabaseOptionsService implements TypeOrmOptionsFactory {
             username: this.config.get<string>('DB_USER'),
             password: this.config.get<string>('DB_PASSWORD'),
             database: this.config.get<string>('DB_NAME'),
-            entities: [`${__dirname}/../../**/*.entity{.ts,.js}`],
+            entities: [`${__dirname}/../../**/*.model{.ts,.js}`],
             namingStrategy: new SnakeNamingStrategy(),
             autoLoadEntities:
                 this.config.get<string>('NODE_ENV') === Environment.DEVELOPMENT,

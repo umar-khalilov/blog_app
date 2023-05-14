@@ -5,34 +5,34 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BlogEntity } from './blog.entity';
+import { BlogModel } from './blog.model';
 import { UserService } from '../users/user.service';
-import { CreateBlogDto } from './dto/create-blog.dto';
+import { CreateBlogInput } from './inputs/create-blog.input';
 import { PostgresErrorCode } from '@/app/database/constraints/errors.constraint';
-import { PaginationDto } from '@/common/dto/pagination.dto';
-import { PageOptionsDto } from '@/common/dto/page-options.dto';
-import { PageMetaDto } from '@/common/dto/page-meta.dto';
-import { UpdateBlogDto } from './dto/update-blog.dto';
+import { UpdateBlogInput } from './inputs/update-blog.dto';
 import { typeReturn } from '@/common/utils/helpers.util';
+import { PageOptionsArgs } from '@/common/outputs/page-options.args';
+import { PaginationOutput } from '@/common/outputs/pagination.output';
+import { PageMetaOutput } from '@/common/outputs/page-meta.output';
 
 @Injectable()
 export class BlogService {
     constructor(
-        @InjectRepository(BlogEntity)
-        private readonly blogRepository: Repository<BlogEntity>,
+        @InjectRepository(BlogModel)
+        private readonly blogRepository: Repository<BlogModel>,
         private readonly userService: UserService,
     ) {}
 
     async createOne(
         userId: number,
-        data: CreateBlogDto,
-    ): Promise<BlogEntity | void> {
+        data: CreateBlogInput,
+    ): Promise<BlogModel | void> {
         const author = await this.userService.findOneById(userId);
-        return typeReturn<BlogEntity>(
+        return typeReturn<BlogModel>(
             this.blogRepository
                 .createQueryBuilder()
                 .insert()
-                .into(BlogEntity)
+                .into(BlogModel)
                 .values({ ...data, author })
                 .returning('*')
                 .execute(),
@@ -45,7 +45,7 @@ export class BlogService {
         });
     }
 
-    async findOneById(userId: number, blogId: number): Promise<BlogEntity> {
+    async findOneById(userId: number, blogId: number): Promise<BlogModel> {
         await this.userService.findOneById(userId);
         const foundBlog = await this.blogRepository
             .createQueryBuilder()
@@ -63,7 +63,7 @@ export class BlogService {
     async findAllPostsByBlogId(
         userId: number,
         blogId: number,
-    ): Promise<BlogEntity> {
+    ): Promise<BlogModel> {
         await this.userService.findOneById(userId);
         const foundBlog = await this.blogRepository
             .createQueryBuilder('blog')
@@ -80,9 +80,9 @@ export class BlogService {
     }
 
     async findAll(
-        pageOptionsDto: PageOptionsDto,
-    ): Promise<PaginationDto<BlogEntity>> {
-        const { take, skip, order } = pageOptionsDto;
+        pageOptionsArgs: PageOptionsArgs,
+    ): Promise<PaginationOutput<BlogModel>> {
+        const { take, skip, order } = pageOptionsArgs;
 
         const [blogs, itemCount] = await this.blogRepository
             .createQueryBuilder('blog')
@@ -94,20 +94,23 @@ export class BlogService {
         if (itemCount === 0) {
             throw new NotFoundException('Not found blogs in database');
         }
-        const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
-        return new PaginationDto<BlogEntity>(blogs, pageMetaDto);
+        const pageMetaOptions = new PageMetaOutput({
+            pageOptionsArgs,
+            itemCount,
+        });
+        return new PaginationOutput<BlogModel>(blogs, pageMetaOptions);
     }
 
     async updateById(
         userId: number,
         blogId: number,
-        data: UpdateBlogDto,
-    ): Promise<BlogEntity> {
+        data: UpdateBlogInput,
+    ): Promise<BlogModel> {
         const { id: authorId } = await this.userService.findOneById(userId);
-        const updatedBlog = await typeReturn<BlogEntity>(
+        const updatedBlog = await typeReturn<BlogModel>(
             this.blogRepository
                 .createQueryBuilder()
-                .update(BlogEntity)
+                .update(BlogModel)
                 .set(data)
                 .where('id = :blogId AND author_id = :authorId', {
                     blogId,
@@ -124,13 +127,13 @@ export class BlogService {
         return updatedBlog;
     }
 
-    async removeById(userId: number, blogId: number): Promise<void> {
+    async removeById(userId: number, blogId: number): Promise<BlogModel> {
         const { id: authorId } = await this.userService.findOneById(userId);
-        const removedBlog = await typeReturn<BlogEntity>(
+        const removedBlog = await typeReturn<BlogModel>(
             this.blogRepository
                 .createQueryBuilder()
                 .delete()
-                .from(BlogEntity)
+                .from(BlogModel)
                 .where('id = :blogId AND author_id = :authorId', {
                     blogId,
                     authorId,
@@ -143,5 +146,6 @@ export class BlogService {
                 `Blog with that id: ${blogId} not found`,
             );
         }
+        return removedBlog;
     }
 }

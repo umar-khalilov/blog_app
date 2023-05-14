@@ -60,6 +60,11 @@ export class EnvironmentVariables {
     @IsNotEmpty({ message: 'DB_PASSWORD cannot be an empty value' })
     readonly DB_PASSWORD: string;
 
+    @IsInt({ message: 'GRAPHQL_PLAYGROUND must be an integer value' })
+    @Type(() => Number)
+    @IsNotEmpty({ message: 'GRAPHQL_PLAYGROUND cannot be an empty value' })
+    readonly GRAPHQL_PLAYGROUND: number;
+
     @IsString({ message: 'JWT_ACCESS_TOKEN_SECRET must be a string value' })
     @IsNotEmpty({ message: 'JWT_ACCESS_TOKEN_SECRET cannot be an empty value' })
     readonly JWT_ACCESS_TOKEN_SECRET: string;

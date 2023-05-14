@@ -5,34 +5,34 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PostEntity } from './post.entity';
-import { CreatePostDto } from './dto/create-post.dto';
+import { PostModel } from './post.model';
+import { BlogModel } from '../blogs/blog.model';
 import { BlogService } from '../blogs/blog.service';
+import { CreatePostInput } from './inputs/create-post.input';
 import { PostgresErrorCode } from '@/app/database/constraints/errors.constraint';
 import { typeReturn } from '@/common/utils/helpers.util';
-import { UpdatePostDto } from './dto/update-post.dto';
-import { PostParamsDto } from './dto/post-params.dto';
-import { BlogEntity } from '../blogs/blog.entity';
+import { UpdatePostInput } from './inputs/update-post.dto';
+import { PostParamArgs } from './inputs/post-param.dto';
 
 @Injectable()
 export class PostService {
     constructor(
-        @InjectRepository(PostEntity)
-        private readonly postRepository: Repository<PostEntity>,
+        @InjectRepository(PostModel)
+        private readonly postRepository: Repository<PostModel>,
         private readonly blogService: BlogService,
     ) {}
 
     async createOne(
         userId: number,
         blogId: number,
-        data: CreatePostDto,
-    ): Promise<PostEntity | void> {
+        data: CreatePostInput,
+    ): Promise<PostModel | void> {
         const blog = await this.blogService.findOneById(userId, blogId);
-        return typeReturn<PostEntity>(
+        return typeReturn<PostModel>(
             this.postRepository
                 .createQueryBuilder()
                 .insert()
-                .into(PostEntity)
+                .into(PostModel)
                 .values({ ...data, blog })
                 .returning('*')
                 .execute(),
@@ -48,11 +48,11 @@ export class PostService {
     async findAllPostsByBlogId(
         userId: number,
         blogId: number,
-    ): Promise<BlogEntity> {
+    ): Promise<BlogModel> {
         return this.blogService.findAllPostsByBlogId(userId, blogId);
     }
 
-    async findOneById(ids: PostParamsDto): Promise<PostEntity> {
+    async findOneByIds(ids: PostParamArgs): Promise<PostModel> {
         const { userId, blogId, postId } = ids;
         await this.blogService.findOneById(userId, blogId);
         const foundPost = await this.postRepository
@@ -68,16 +68,16 @@ export class PostService {
         return foundPost;
     }
 
-    async updateById(
-        ids: PostParamsDto,
-        data: UpdatePostDto,
-    ): Promise<PostEntity> {
+    async updateByIds(
+        ids: PostParamArgs,
+        data: UpdatePostInput,
+    ): Promise<PostModel> {
         const { userId, blogId, postId } = ids;
         const blog = await this.blogService.findOneById(userId, blogId);
-        const updatedPost = await typeReturn<PostEntity>(
+        const updatedPost = await typeReturn<PostModel>(
             this.postRepository
                 .createQueryBuilder()
-                .update(PostEntity)
+                .update(PostModel)
                 .set(data)
                 .where('id = :postId AND blog_id = :blogId', {
                     postId,
@@ -94,14 +94,14 @@ export class PostService {
         return updatedPost;
     }
 
-    async removeById(ids: PostParamsDto): Promise<void> {
+    async removeByIds(ids: PostParamArgs): Promise<PostModel> {
         const { userId, blogId, postId } = ids;
         const blog = await this.blogService.findOneById(userId, blogId);
-        const removedPost = await typeReturn<PostEntity>(
+        const removedPost = await typeReturn<PostModel>(
             this.postRepository
                 .createQueryBuilder()
                 .delete()
-                .from(PostEntity)
+                .from(PostModel)
                 .where('id = :postId AND blog_id = :blogId', {
                     postId,
                     blogId: blog.id,
@@ -114,5 +114,6 @@ export class PostService {
                 `Post with that id: ${postId} not found`,
             );
         }
+        return removedPost;
     }
 }

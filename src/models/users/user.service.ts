@@ -1,32 +1,31 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserEntity } from './user.entity';
+import { UserModel } from './user.model';
 import { HashService } from '@/hash/hash.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { PaginationDto } from '@/common/dto/pagination.dto';
-import { PageOptionsDto } from '@/common/dto/page-options.dto';
-import { PageMetaDto } from '@/common/dto/page-meta.dto';
-import { UserDto } from './dto/user.dto';
-import { RoleTypes } from '@/common/enums/role-types.enum';
-import { ChangeRoleDto } from './dto/change-role.dto';
+import { UpdateUserInput } from './inputs/update-user.input';
 import { typeReturn } from '@/common/utils/helpers.util';
+import { CreateUserInput } from './inputs/create-user.input';
+import { ChangeRoleInput } from './inputs/change-role.input';
+import { RoleTypes } from '@/common/enums/role-types.enum';
+import { PageOptionsArgs } from '@/common/outputs/page-options.args';
+import { PageMetaOutput } from '@/common/outputs/page-meta.output';
+import { PaginationOutput } from '@/common/outputs/pagination.output';
 
 @Injectable()
 export class UserService {
     constructor(
-        @InjectRepository(UserEntity)
-        private readonly userRepository: Repository<UserEntity>,
+        @InjectRepository(UserModel)
+        private readonly userRepository: Repository<UserModel>,
         private readonly hashService: HashService,
     ) {}
 
-    async createOne(data: CreateUserDto): Promise<UserEntity> {
-        return typeReturn<UserEntity>(
+    async createOne(data: CreateUserInput): Promise<UserModel> {
+        return typeReturn<UserModel>(
             this.userRepository
                 .createQueryBuilder()
                 .insert()
-                .into(UserEntity)
+                .into(UserModel)
                 .values({
                     ...data,
                     role: RoleTypes.WRITER,
@@ -37,9 +36,9 @@ export class UserService {
     }
 
     async findAll(
-        pageOptionsDto: PageOptionsDto,
-    ): Promise<PaginationDto<UserDto>> {
-        const { take, skip, order } = pageOptionsDto;
+        pageOptionsArgs: PageOptionsArgs,
+    ): Promise<PaginationOutput<UserModel>> {
+        const { take, skip, order } = pageOptionsArgs;
 
         const [users, itemCount] = await this.userRepository
             .createQueryBuilder('user')
@@ -51,11 +50,14 @@ export class UserService {
         if (itemCount === 0) {
             throw new NotFoundException('Not found users in database');
         }
-        const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
-        return new PaginationDto<UserDto>(users, pageMetaDto);
+        const pageMetaOptions = new PageMetaOutput({
+            pageOptionsArgs,
+            itemCount,
+        });
+        return new PaginationOutput<UserModel>(users, pageMetaOptions);
     }
 
-    async findOneById(id: number): Promise<UserDto> {
+    async findOneById(id: number): Promise<UserModel> {
         const foundUser = await this.userRepository
             .createQueryBuilder('user')
             .where('user.id = :id', { id })
@@ -64,10 +66,10 @@ export class UserService {
         if (!foundUser) {
             throw new NotFoundException(`User with that id: ${id} not found`);
         }
-        return new UserDto(foundUser);
+        return foundUser;
     }
 
-    async findUserByEmail(email: string): Promise<UserEntity> {
+    async findUserByEmail(email: string): Promise<UserModel> {
         return this.userRepository
             .createQueryBuilder('user')
             .addSelect(['user.password'])
@@ -77,8 +79,8 @@ export class UserService {
 
     async updateById(
         id: number,
-        updateUserDto: UpdateUserDto,
-    ): Promise<UserDto> {
+        updateUserDto: UpdateUserInput,
+    ): Promise<UserModel> {
         if (updateUserDto.password) {
             updateUserDto.password =
                 await this.hashService.convertToHashPassword(
@@ -86,10 +88,10 @@ export class UserService {
                 );
         }
 
-        const updatedUser = await typeReturn<UserEntity>(
+        const updatedUser = await typeReturn<UserModel>(
             this.userRepository
                 .createQueryBuilder()
-                .update(UserEntity)
+                .update(UserModel)
                 .set(updateUserDto)
                 .where('id = :id', { id })
                 .returning('*')
@@ -98,15 +100,15 @@ export class UserService {
         if (!updatedUser) {
             throw new NotFoundException(`User with that id: ${id} not found`);
         }
-        return new UserDto(updatedUser);
+        return updatedUser;
     }
 
-    async removeById(id: number): Promise<void> {
-        const removedUser = await typeReturn<UserEntity>(
+    async removeById(id: number): Promise<UserModel> {
+        const removedUser = await typeReturn<UserModel>(
             this.userRepository
                 .createQueryBuilder()
                 .delete()
-                .from(UserEntity)
+                .from(UserModel)
                 .where('id = :id', { id })
                 .returning('id')
                 .execute(),
@@ -114,15 +116,16 @@ export class UserService {
         if (!removedUser) {
             throw new NotFoundException(`User with that id: ${id} not found`);
         }
+        return removedUser;
     }
 
-    async changeUserRole({ userId, role }: ChangeRoleDto): Promise<string> {
+    async changeUserRole({ userId, role }: ChangeRoleInput): Promise<string> {
         const user = await this.findOneById(userId);
         if (user) {
-            await typeReturn<UserEntity>(
+            await typeReturn<UserModel>(
                 this.userRepository
                     .createQueryBuilder()
-                    .update(UserEntity)
+                    .update(UserModel)
                     .set({ role })
                     .where('id = :userId', { userId })
                     .execute(),

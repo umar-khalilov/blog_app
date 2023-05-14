@@ -1,6 +1,9 @@
+import { join } from 'node:path';
 import { Module, OnApplicationBootstrap } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { UserModule } from '../models/users/user.module';
 import { AuthModule } from '../auth/auth.module';
 import { DatabaseOptionsService } from './database/database-options.service';
@@ -20,6 +23,16 @@ import { PostModule } from '@/models/posts/post.module';
         }),
         TypeOrmModule.forRootAsync({
             useClass: DatabaseOptionsService,
+        }),
+        GraphQLModule.forRootAsync<ApolloDriverConfig>({
+            driver: ApolloDriver,
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: (configService: ConfigService) => ({
+                playground: Boolean(configService.get('GRAPHQL_PLAYGROUND')),
+                autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+                sortSchema: true,
+            }),
         }),
         HashModule,
         AuthModule,

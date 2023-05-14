@@ -4,6 +4,7 @@ import {
     Injectable,
     UnauthorizedException,
 } from '@nestjs/common';
+import { GqlExecutionContext } from '@nestjs/graphql';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -11,14 +12,16 @@ export class JwtAuthGuard implements CanActivate {
     constructor(private readonly jwtService: JwtService) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        const request = context.switchToHttp().getRequest();
+        const ctx = GqlExecutionContext.create(context).getContext();
         try {
-            const [bearer, token] = request.headers.authorization.split(' ');
+            const [bearer, token] = ctx.req.headers.authorization.split(' ');
             if (bearer !== 'Bearer' || !token) {
                 throw new UnauthorizedException('User is not authorized');
             }
+
             const user = await this.jwtService.verifyAsync(token);
-            request.user = user;
+
+            ctx.req.user = user;
             return true;
         } catch (error) {
             throw new UnauthorizedException('User is not authorized');

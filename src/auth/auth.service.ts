@@ -6,14 +6,14 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '@/models/users/user.service';
-import { IUserAuth } from './interfaces/user-auth.interface';
-import { CreateUserDto } from '@/models/users/dto/create-user.dto';
 import { PostgresErrorCode } from '@/app/database/constraints/errors.constraint';
 import { IJwtPayload } from './interfaces/jwt-payload.interface';
-import { SignInDto } from './sign-in.dto';
-import { UserEntity } from '@/models/users/user.entity';
-import { UserDto } from '@/models/users/dto/user.dto';
+import { SignInInput } from './inputs/sign-in.input';
+import { UserModel } from '@/models/users/user.model';
 import { HashService } from '@/hash/hash.service';
+import { CreateUserInput } from '@/models/users/inputs/create-user.input';
+import { UserAuthOutput } from './inputs/user-auth.output';
+import { UserOutput } from '@/models/users/inputs/user.output';
 
 @Injectable()
 export class AuthService {
@@ -27,7 +27,7 @@ export class AuthService {
         return this.jwtService.signAsync(payload);
     }
 
-    private async validateUser(data: SignInDto): Promise<UserEntity> {
+    private async validateUser(data: SignInInput): Promise<UserModel> {
         const user = await this.userService.findUserByEmail(data.email);
 
         if (
@@ -42,7 +42,7 @@ export class AuthService {
         }
     }
 
-    async signUp(data: CreateUserDto): Promise<IUserAuth> {
+    async signUp(data: CreateUserInput): Promise<UserAuthOutput> {
         const hashedPassword = await this.hashService.convertToHashPassword(
             data.password,
         );
@@ -67,14 +67,14 @@ export class AuthService {
             role: createdUser.role,
         };
 
-        const user = new UserDto(createdUser);
+        const user = new UserOutput(createdUser);
         return {
             tokens: { access: await this.getAccessJWT(payload) },
             user,
         };
     }
 
-    async signIn(data: SignInDto): Promise<IUserAuth> {
+    async signIn(data: SignInInput): Promise<UserAuthOutput> {
         const signedUser = await this.validateUser(data);
 
         const payload: IJwtPayload = {
@@ -83,7 +83,7 @@ export class AuthService {
             role: signedUser.role,
         };
 
-        const user = new UserDto(signedUser);
+        const user = new UserOutput(signedUser);
         return {
             tokens: { access: await this.getAccessJWT(payload) },
             user,
