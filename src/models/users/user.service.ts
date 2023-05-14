@@ -119,19 +119,26 @@ export class UserService {
         return removedUser;
     }
 
-    async changeUserRole({ userId, role }: ChangeRoleInput): Promise<string> {
-        const user = await this.findOneById(userId);
-        if (user) {
-            await typeReturn<UserModel>(
-                this.userRepository
-                    .createQueryBuilder()
-                    .update(UserModel)
-                    .set({ role })
-                    .where('id = :userId', { userId })
-                    .execute(),
+    async changeUserRole({
+        userId,
+        role,
+    }: ChangeRoleInput): Promise<UserModel> {
+        // const user = await this.findOneById(userId);
+
+        const user = await typeReturn<UserModel>(
+            this.userRepository
+                .createQueryBuilder()
+                .update(UserModel)
+                .set({ role })
+                .where('id = :userId', { userId })
+                .returning('*')
+                .execute(),
+        );
+        if (!user) {
+            throw new NotFoundException(
+                `User with that id: ${userId} not found`,
             );
-            return `Role: ${role} to user with that id: ${userId} successfully changed`;
         }
-        throw new NotFoundException(`User with that id: ${userId} not found`);
+        return user;
     }
 }

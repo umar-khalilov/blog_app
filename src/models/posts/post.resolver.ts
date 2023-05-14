@@ -9,12 +9,14 @@ import { PostParamArgs } from './inputs/post-param.dto';
 import { BlogParamArgs } from '../blogs/inputs/blog-param.args';
 import { RoleTypes } from '@/common/enums/role-types.enum';
 import { RolesGuard } from '@/auth/guards/roles.guard';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 
 @Resolver(() => PostModel)
 export class PostResolver {
     constructor(private readonly postService: PostService) {}
 
     @UseGuards(RolesGuard(RoleTypes.MODERATOR, RoleTypes.WRITER))
+    @UseGuards(JwtAuthGuard)
     @Mutation(() => PostModel, { description: 'Create a post' })
     async createPostByIds(
         @Args()
@@ -25,6 +27,7 @@ export class PostResolver {
     }
 
     @UseGuards(RolesGuard(RoleTypes.MODERATOR, RoleTypes.WRITER))
+    @UseGuards(JwtAuthGuard)
     @Query(() => BlogModel, { description: 'Find all posts by blog id' })
     async findAllPostsByBlogId(
         @Args()
@@ -34,6 +37,7 @@ export class PostResolver {
     }
 
     @UseGuards(RolesGuard(RoleTypes.MODERATOR, RoleTypes.WRITER))
+    @UseGuards(JwtAuthGuard)
     @Query(() => PostModel, { description: 'Find a post' })
     async findPostByIds(
         @Args()
@@ -43,6 +47,7 @@ export class PostResolver {
     }
 
     @UseGuards(RolesGuard(RoleTypes.MODERATOR, RoleTypes.WRITER))
+    @UseGuards(JwtAuthGuard)
     @Mutation(() => PostModel, { description: 'Update a post' })
     async updatePostByIds(
         @Args()
@@ -53,6 +58,7 @@ export class PostResolver {
     }
 
     @UseGuards(RolesGuard(RoleTypes.MODERATOR, RoleTypes.WRITER))
+    @UseGuards(JwtAuthGuard)
     @Mutation(() => PostModel, { description: 'Remove a post' })
     async removePostByIds(
         @Args()

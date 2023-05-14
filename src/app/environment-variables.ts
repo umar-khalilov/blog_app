@@ -19,6 +19,10 @@ export class EnvironmentVariables {
     @IsOptional({ message: 'SERVER_URL an optional value' })
     readonly SERVER_URL: string;
 
+    @IsString({ message: 'DATABASE_URL must be a string value' })
+    @IsOptional({ message: 'DATABASE_URL an optional value' })
+    readonly DATABASE_URL: string;
+
     @Min(0, { message: 'SERVER_PORT cannot be less than zero' })
     @Max(65535, { message: 'SERVER_PORT cannot be more than 65535' })
     @IsInt({ message: 'SERVER_PORT must be an integer value' })

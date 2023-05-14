@@ -9,8 +9,6 @@ services:
             POSTGRES_USER: ${DB_USER}
             POSTGRES_DB: ${DB_NAME}
             PG_DATA: /var/lib/postgresql/data
-        healthcheck:
-            test: 'exit 0'
         ports:
             - ${DB_PORT}:${DB_PORT}
         volumes:
@@ -39,8 +37,7 @@ services:
         networks:
             - blog-net
         depends_on:
-            blog-db:
-                condition: service_healthy
+            - blog-db
         restart: on-failure
 
 volumes:

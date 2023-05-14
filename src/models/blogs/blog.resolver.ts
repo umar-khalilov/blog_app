@@ -10,12 +10,14 @@ import { RoleTypes } from '@/common/enums/role-types.enum';
 import { RolesGuard } from '@/auth/guards/roles.guard';
 import { PaginationOutput } from '@/common/outputs/pagination.output';
 import { PageOptionsArgs } from '@/common/outputs/page-options.args';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 
 @Resolver(() => BlogModel)
 export class BlogResolver {
     constructor(private readonly blogService: BlogService) {}
 
     @UseGuards(RolesGuard(RoleTypes.MODERATOR, RoleTypes.WRITER))
+    @UseGuards(JwtAuthGuard)
     @Mutation(() => BlogModel, { description: 'Create a blog' })
     async createBlogByUserId(
         @Args()
@@ -25,15 +27,17 @@ export class BlogResolver {
         return this.blogService.createOne(userId, data);
     }
 
-    // @UseGuards(RolesGuard(RoleTypes.MODERATOR))
+    @UseGuards(RolesGuard(RoleTypes.MODERATOR))
+    @UseGuards(JwtAuthGuard)
     @Query(() => PaginationOutput<BlogModel>, { description: 'Paginated data' })
-    async findAllUsers(
+    async findAllBlogs(
         @Args() data: PageOptionsArgs,
     ): Promise<PaginationOutput<BlogModel>> {
         return this.blogService.findAll(data);
     }
 
     @UseGuards(RolesGuard(RoleTypes.MODERATOR, RoleTypes.WRITER))
+    @UseGuards(JwtAuthGuard)
     @Query(() => BlogModel, { description: 'Find a blog' })
     async findBlogByIds(
         @Args()
@@ -43,6 +47,7 @@ export class BlogResolver {
     }
 
     @UseGuards(RolesGuard(RoleTypes.MODERATOR, RoleTypes.WRITER))
+    @UseGuards(JwtAuthGuard)
     @Mutation(() => BlogModel, { description: 'Update a blog' })
     async updateBlogByIds(
         @Args()
@@ -53,6 +58,7 @@ export class BlogResolver {
     }
 
     @UseGuards(RolesGuard(RoleTypes.MODERATOR, RoleTypes.WRITER))
+    @UseGuards(JwtAuthGuard)
     @Mutation(() => BlogModel, { description: 'Remove blog' })
     async removeBlogByIds(
         @Args()

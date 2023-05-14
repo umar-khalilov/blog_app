@@ -14,7 +14,7 @@ In Windows OS there may be problems with the makefile. Then you can type docker 
 ## Running the app
 
 ```bash
-$ make up-dev or docker compose up
+$ make up or docker compose up
 ```
 
 ## Stopping the app
@@ -43,9 +43,191 @@ Moderator user credentials for sign in:
 
 ### password: admin422I03Pfewq_3
 
-After sign in you will get an access token. You must insert this token to auth panel in Swagger interface!!
+After sign in you will get an access token. You must insert this token to http headers interface like {
+"Authorization": "Bearer <token>"
+}
 Then you may exec protected queries!
 
+
+# Deployed url
 ```http request
-http://127.0.0.1:4000/api/docs
+https://first-blog-app.fly.dev/graphql
 ```
+
+### Available requests:
+
+#### User requests:
+
+-   query {
+    signIn(data: { email: "tzirw@example.com", password: "admin422I03Pfewq_3" }) {
+    tokens {
+    access
+    refresh
+    }
+    user {
+    id
+    name
+    surname
+    email
+    }
+    }
+    }
+
+-   mutation {
+    signUp(
+    data: {
+    name: "Hector"
+    surname: "Troyanovich"
+    email: "hector@mail.com"
+    password: "etoiIN)978bY4!meww"
+    }
+    ) {
+    tokens {
+    access
+    refresh
+    }
+    user {
+    id
+    name
+    surname
+    email
+    }
+    }
+    }
+
+-   query {
+    findUser(userId: 1) {
+    id
+    name
+    surname
+    email
+    createdAt
+    updatedAt
+    }
+    }
+
+-   mutation {
+    changeRole(data: { userId: 3, role: MODERATOR }) {
+    id
+    name
+    surname
+    role
+    }
+    }
+
+-   mutation {
+    updateUserById(userId: 1, data: { name: "Hector" }) {
+    id
+    name
+    surname
+    email
+    }
+    }
+
+-   mutation {
+    removeUserById(userId: 2) {
+    id
+    }
+    }
+
+#### Blog requests:
+
+-   mutation {
+    createBlogByUserId(
+    userId: 3
+    data: { name: "JavaScript", description: "Awesome language" }
+    ) {
+    id
+    name
+    description
+    }
+    }
+
+-   query {
+    findBlogByIds(userId: 3, blogId: 1) {
+    id
+    name
+    description
+    createdAt
+    updatedAt
+    }
+    }
+
+-   mutation {
+    updateBlogByIds(
+    userId: 3
+    blogId: 1
+    data: { name: "Java better than typescript" }
+    ) {
+    name
+    description
+    }
+    }
+
+-   mutation {
+    removeBlogByIds(userId: 3, blogId: 1) {
+    id
+    }
+    }
+
+### Post requests
+
+-   mutation {
+    createPostByIds(
+    userId: 3
+    blogId: 3
+    data: { title: "SQL easy", content: "bla-bla-bla", isArchived: false }
+    ) {
+    id
+    title
+    content
+    }
+    }
+
+-   query {
+    findAllPostsByBlogId(userId: 3, blogId: 3) {
+    id
+    name
+    description
+    createdAt
+    updatedAt
+    posts {
+    id
+    title
+    content
+    isArchived
+    createdAt
+    updatedAt
+    }
+    }
+    }
+
+-   query {
+    findPostByIds(userId: 3, blogId: 3, postId: 1) {
+    id
+    title
+    content
+    isArchived
+    createdAt
+    updatedAt
+    }
+    }
+
+-   mutation {
+    updatePostByIds(
+    userId: 3
+    blogId: 3
+    postId: 1
+    data: { title: "Graphql stronger" }
+    ) {
+    id
+    title
+    content
+    }
+    }
+
+-   mutation {
+    removePostByIds(userId: 3, blogId: 3, postId: 2) {
+    id
+    }
+    }

@@ -6,4 +6,5 @@ const main = async (): Promise<void> => {
     await app.listen();
 };
 
-AppClusterizeService.runInCluster(main);
+void main();
+// AppClusterizeService.runInCluster(main);

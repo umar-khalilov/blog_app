@@ -15,7 +15,8 @@ import { PageOptionsArgs } from '@/common/outputs/page-options.args';
 export class UserResolver {
     constructor(private readonly userService: UserService) {}
 
-    // @UseGuards(RolesGuard(RoleTypes.MODERATOR))
+    @UseGuards(RolesGuard(RoleTypes.MODERATOR))
+    @UseGuards(JwtAuthGuard)
     @Query(() => PaginationOutput<UserModel>, { description: 'Paginated data' })
     async findAllUsers(
         @Args() data: PageOptionsArgs,
@@ -24,8 +25,9 @@ export class UserResolver {
     }
 
     @UseGuards(RolesGuard(RoleTypes.MODERATOR))
+    @UseGuards(JwtAuthGuard)
     @Mutation(() => UserModel, { description: 'Change user role' })
-    async changeRole(@Args('data') data: ChangeRoleInput): Promise<string> {
+    async changeRole(@Args('data') data: ChangeRoleInput): Promise<UserModel> {
         return this.userService.changeUserRole(data);
     }
 
@@ -48,6 +50,7 @@ export class UserResolver {
     }
 
     @UseGuards(RolesGuard(RoleTypes.MODERATOR, RoleTypes.WRITER))
+    @UseGuards(JwtAuthGuard)
     @Mutation(() => UserModel, { description: 'Remove user' })
     async removeUserById(
         @Args()
