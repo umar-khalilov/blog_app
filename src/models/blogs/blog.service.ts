@@ -101,6 +101,17 @@ export class BlogService {
         return new PaginationOutput<BlogModel>(blogs, pageMetaOptions);
     }
 
+    async findAllPostsWithoutPagination(): Promise<BlogModel[]> {
+        const [blogs, itemCount] = await this.blogRepository
+            .createQueryBuilder()
+            .getManyAndCount();
+
+        if (itemCount === 0) {
+            throw new NotFoundException('Not found blogs in database');
+        }
+        return blogs;
+    }
+
     async updateById(
         userId: number,
         blogId: number,

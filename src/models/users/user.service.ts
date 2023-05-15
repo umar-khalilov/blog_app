@@ -57,6 +57,17 @@ export class UserService {
         return new PaginationOutput<UserModel>(users, pageMetaOptions);
     }
 
+    async findAllWithoutPagination(): Promise<UserModel[]> {
+        const [users, itemCount] = await this.userRepository
+            .createQueryBuilder()
+            .getManyAndCount();
+
+        if (itemCount === 0) {
+            throw new NotFoundException('Not found users in database');
+        }
+        return users;
+    }
+
     async findOneById(id: number): Promise<UserModel> {
         const foundUser = await this.userRepository
             .createQueryBuilder('user')

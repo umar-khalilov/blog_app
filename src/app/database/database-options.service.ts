@@ -20,7 +20,7 @@ export class DatabaseOptionsService implements TypeOrmOptionsFactory {
             username: this.config.get<string>('DB_USER'),
             password: this.config.get<string>('DB_PASSWORD'),
             database: this.config.get<string>('DB_NAME'),
-            // url: this.config.get<string>('DATABASE_URL'),
+            url: this.config.get<string>('DATABASE_URL'),
             entities: [`${__dirname}/../../**/*.model{.ts,.js}`],
             namingStrategy: new SnakeNamingStrategy(),
             autoLoadEntities:

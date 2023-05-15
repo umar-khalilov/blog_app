@@ -48,8 +48,8 @@ After sign in you will get an access token. You must insert this token to http h
 }
 Then you may exec protected queries!
 
-
 # Deployed url
+
 ```http request
 https://first-blog-app.fly.dev/graphql
 ```
@@ -130,6 +130,20 @@ https://first-blog-app.fly.dev/graphql
     }
     }
 
+### Get users without pagination
+
+-   query {
+    findAllUsersWithoutPagination {
+    id
+    name
+    surname
+    email
+    createdAt
+    updatedAt
+    role
+    }
+    }
+
 #### Blog requests:
 
 -   mutation {
@@ -167,6 +181,18 @@ https://first-blog-app.fly.dev/graphql
 -   mutation {
     removeBlogByIds(userId: 3, blogId: 1) {
     id
+    }
+    }
+
+### Get blogs without pagination
+
+-   query {
+    findAllBlogsWithoutPagination {
+    id
+    name
+    description
+    createdAt
+    updatedAt
     }
     }
 

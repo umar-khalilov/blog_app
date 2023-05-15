@@ -36,6 +36,13 @@ export class BlogResolver {
         return this.blogService.findAll(data);
     }
 
+    @UseGuards(RolesGuard(RoleTypes.MODERATOR))
+    @UseGuards(JwtAuthGuard)
+    @Query(() => [BlogModel], { description: 'Paginated data' })
+    async findAllBlogsWithoutPagination(): Promise<BlogModel[]> {
+        return this.blogService.findAllPostsWithoutPagination();
+    }
+
     @UseGuards(RolesGuard(RoleTypes.MODERATOR, RoleTypes.WRITER))
     @UseGuards(JwtAuthGuard)
     @Query(() => BlogModel, { description: 'Find a blog' })

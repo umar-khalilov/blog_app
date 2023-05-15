@@ -26,6 +26,13 @@ export class UserResolver {
 
     @UseGuards(RolesGuard(RoleTypes.MODERATOR))
     @UseGuards(JwtAuthGuard)
+    @Query(() => [UserModel], { description: 'Users' })
+    async findAllUsersWithoutPagination(): Promise<UserModel[]> {
+        return this.userService.findAllWithoutPagination();
+    }
+
+    @UseGuards(RolesGuard(RoleTypes.MODERATOR))
+    @UseGuards(JwtAuthGuard)
     @Mutation(() => UserModel, { description: 'Change user role' })
     async changeRole(@Args('data') data: ChangeRoleInput): Promise<UserModel> {
         return this.userService.changeUserRole(data);
