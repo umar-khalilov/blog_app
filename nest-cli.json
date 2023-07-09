@@ -4,6 +4,7 @@
     "sourceRoot": "src",
     "compilerOptions": {
         "deleteOutDir": false,
-        "plugins": ["@nestjs/graphql"]
+        "builder": "swc",
+        "typeCheck": true
     }
 }

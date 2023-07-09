@@ -13,14 +13,14 @@ export class App {
     private readonly serverPort: number;
     private readonly logger: Logger;
 
-    constructor(application: INestApplication) {
+    public constructor(application: INestApplication) {
         this.application = application;
         this.config = this.application.get(ConfigService);
         this.serverPort = this.config.get<number>('SERVER_PORT', 4000);
         this.logger = new Logger(App.name);
     }
 
-    static async build(): Promise<App> {
+    public static async build(): Promise<App> {
         const app = await NestFactory.create<NestFastifyApplication>(
             AppModule,
             new FastifyAdapter(),
@@ -41,14 +41,10 @@ export class App {
         return new App(app);
     }
 
-    async listen(): Promise<void> {
-        this.application
-            .listen(this.serverPort, '0.0.0.0')
-            .then(async () => {
-                this.logger.log(
-                    `Application documentation is available at ${await this.application.getUrl()}/graphql`,
-                );
-            })
-            .catch(this.logger.log);
+    public async listen(): Promise<void> {
+        await this.application.listen(this.serverPort, '0.0.0.0');
+        this.logger.log(
+            `Application documentation is available at ${await this.application.getUrl()}/graphql`,
+        );
     }
 }

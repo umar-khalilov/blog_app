@@ -1,5 +1,4 @@
 import { App } from './App';
-import { AppClusterizeService } from './app/app-clusterize.service';
 
 const main = async (): Promise<void> => {
     const app = await App.build();
@@ -7,4 +6,4 @@ const main = async (): Promise<void> => {
 };
 
 void main();
-// AppClusterizeService.runInCluster(main);
+// AppClusterService.runInCluster(main);

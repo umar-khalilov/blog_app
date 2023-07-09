@@ -13,12 +13,12 @@ import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 
 @Resolver(() => PostModel)
 export class PostResolver {
-    constructor(private readonly postService: PostService) {}
+    public constructor(private readonly postService: PostService) {}
 
     @UseGuards(RolesGuard(RoleTypes.MODERATOR, RoleTypes.WRITER))
     @UseGuards(JwtAuthGuard)
     @Mutation(() => PostModel, { description: 'Create a post' })
-    async createPostByIds(
+    public async createPostByIds(
         @Args()
         { userId, blogId }: BlogParamArgs,
         @Args('data') data: CreatePostInput,
@@ -29,7 +29,7 @@ export class PostResolver {
     @UseGuards(RolesGuard(RoleTypes.MODERATOR, RoleTypes.WRITER))
     @UseGuards(JwtAuthGuard)
     @Query(() => BlogModel, { description: 'Find all posts by blog id' })
-    async findAllPostsByBlogId(
+    public async findAllPostsByBlogId(
         @Args()
         { userId, blogId }: BlogParamArgs,
     ): Promise<BlogModel> {
@@ -39,7 +39,7 @@ export class PostResolver {
     @UseGuards(RolesGuard(RoleTypes.MODERATOR, RoleTypes.WRITER))
     @UseGuards(JwtAuthGuard)
     @Query(() => PostModel, { description: 'Find a post' })
-    async findPostByIds(
+    public async findPostByIds(
         @Args()
         ids: PostParamArgs,
     ): Promise<PostModel> {
@@ -49,7 +49,7 @@ export class PostResolver {
     @UseGuards(RolesGuard(RoleTypes.MODERATOR, RoleTypes.WRITER))
     @UseGuards(JwtAuthGuard)
     @Mutation(() => PostModel, { description: 'Update a post' })
-    async updatePostByIds(
+    public async updatePostByIds(
         @Args()
         ids: PostParamArgs,
         @Args('data') data: UpdatePostInput,
@@ -60,7 +60,7 @@ export class PostResolver {
     @UseGuards(RolesGuard(RoleTypes.MODERATOR, RoleTypes.WRITER))
     @UseGuards(JwtAuthGuard)
     @Mutation(() => PostModel, { description: 'Remove a post' })
-    async removePostByIds(
+    public async removePostByIds(
         @Args()
         ids: PostParamArgs,
     ): Promise<PostModel> {

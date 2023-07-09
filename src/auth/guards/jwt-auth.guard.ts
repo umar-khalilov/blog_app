@@ -11,15 +11,14 @@ import { JwtService } from '@nestjs/jwt';
 export class JwtAuthGuard implements CanActivate {
     constructor(private readonly jwtService: JwtService) {}
 
-    async canActivate(context: ExecutionContext): Promise<boolean> {
+    public async canActivate(context: ExecutionContext): Promise<boolean> {
         const ctx = GqlExecutionContext.create(context).getContext();
         try {
             const [bearer, token] = ctx.req.headers.authorization.split(' ');
             if (bearer !== 'Bearer' || !token) {
                 throw new UnauthorizedException('User is not authorized');
             }
-            const user = await this.jwtService.verifyAsync(token);
-            ctx.req.user = user;
+            ctx.req.user = await this.jwtService.verifyAsync(token);
             return true;
         } catch (error) {
             throw new UnauthorizedException('User is not authorized');

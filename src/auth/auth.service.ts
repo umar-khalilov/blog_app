@@ -42,7 +42,7 @@ export class AuthService {
         }
     }
 
-    async signUp(data: CreateUserInput): Promise<UserAuthOutput> {
+    public async signUp(data: CreateUserInput): Promise<UserAuthOutput> {
         const hashedPassword = await this.hashService.convertToHashPassword(
             data.password,
         );
@@ -74,7 +74,7 @@ export class AuthService {
         };
     }
 
-    async signIn(data: SignInInput): Promise<UserAuthOutput> {
+    public async signIn(data: SignInInput): Promise<UserAuthOutput> {
         const signedUser = await this.validateUser(data);
 
         const payload: IJwtPayload = {

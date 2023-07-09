@@ -1,5 +1,5 @@
 import { UseGuards } from '@nestjs/common';
-import { Args, Resolver, Query, Mutation } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UserModel } from './user.model';
 import { UserService } from './user.service';
 import { UpdateUserInput } from './inputs/update-user.input';
@@ -8,39 +8,34 @@ import { UserParamArgs } from './inputs/user-param.args';
 import { RolesGuard } from '@/auth/guards/roles.guard';
 import { RoleTypes } from '@/common/enums/role-types.enum';
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
-import { PaginationOutput } from '@/common/outputs/pagination.output';
 import { PageOptionsArgs } from '@/common/outputs/page-options.args';
+import { PaginatedUserResponseOutput } from '@/models/users/inputs/paginated-user-response.output';
 
 @Resolver(() => UserModel)
 export class UserResolver {
-    constructor(private readonly userService: UserService) {}
+    public constructor(private readonly userService: UserService) {}
 
     @UseGuards(RolesGuard(RoleTypes.MODERATOR))
     @UseGuards(JwtAuthGuard)
-    @Query(() => PaginationOutput<UserModel>, { description: 'Paginated data' })
-    async findAllUsers(
+    @Query(() => PaginatedUserResponseOutput, { description: 'Paginated data' })
+    public async findAllUsers(
         @Args() data: PageOptionsArgs,
-    ): Promise<PaginationOutput<UserModel>> {
+    ): Promise<PaginatedUserResponseOutput> {
         return this.userService.findAll(data);
     }
 
     @UseGuards(RolesGuard(RoleTypes.MODERATOR))
     @UseGuards(JwtAuthGuard)
-    @Query(() => [UserModel], { description: 'Users' })
-    async findAllUsersWithoutPagination(): Promise<UserModel[]> {
-        return this.userService.findAllWithoutPagination();
-    }
-
-    @UseGuards(RolesGuard(RoleTypes.MODERATOR))
-    @UseGuards(JwtAuthGuard)
     @Mutation(() => UserModel, { description: 'Change user role' })
-    async changeRole(@Args('data') data: ChangeRoleInput): Promise<UserModel> {
+    public async changeRole(
+        @Args('data') data: ChangeRoleInput,
+    ): Promise<UserModel> {
         return this.userService.changeUserRole(data);
     }
 
     @UseGuards(JwtAuthGuard)
     @Query(() => UserModel, { description: 'Get a user' })
-    async findUser(
+    public async findUser(
         @Args()
         { userId }: UserParamArgs,
     ): Promise<UserModel> {
@@ -49,7 +44,7 @@ export class UserResolver {
 
     @UseGuards(JwtAuthGuard)
     @Mutation(() => UserModel, { description: 'Update a user' })
-    async updateUserById(
+    public async updateUserById(
         @Args() { userId }: UserParamArgs,
         @Args('data') data: UpdateUserInput,
     ): Promise<UserModel> {
@@ -59,7 +54,7 @@ export class UserResolver {
     @UseGuards(RolesGuard(RoleTypes.MODERATOR, RoleTypes.WRITER))
     @UseGuards(JwtAuthGuard)
     @Mutation(() => UserModel, { description: 'Remove user' })
-    async removeUserById(
+    public async removeUserById(
         @Args()
         { userId }: UserParamArgs,
     ): Promise<UserModel> {

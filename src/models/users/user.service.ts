@@ -10,17 +10,17 @@ import { ChangeRoleInput } from './inputs/change-role.input';
 import { RoleTypes } from '@/common/enums/role-types.enum';
 import { PageOptionsArgs } from '@/common/outputs/page-options.args';
 import { PageMetaOutput } from '@/common/outputs/page-meta.output';
-import { PaginationOutput } from '@/common/outputs/pagination.output';
+import { PaginatedUserResponseOutput } from '@/models/users/inputs/paginated-user-response.output';
 
 @Injectable()
 export class UserService {
-    constructor(
+    public constructor(
         @InjectRepository(UserModel)
         private readonly userRepository: Repository<UserModel>,
         private readonly hashService: HashService,
     ) {}
 
-    async createOne(data: CreateUserInput): Promise<UserModel> {
+    public async createOne(data: CreateUserInput): Promise<UserModel> {
         return typeReturn<UserModel>(
             this.userRepository
                 .createQueryBuilder()
@@ -35,9 +35,9 @@ export class UserService {
         );
     }
 
-    async findAll(
+    public async findAll(
         pageOptionsArgs: PageOptionsArgs,
-    ): Promise<PaginationOutput<UserModel>> {
+    ): Promise<PaginatedUserResponseOutput> {
         const { take, skip, order } = pageOptionsArgs;
 
         const [users, itemCount] = await this.userRepository
@@ -54,21 +54,10 @@ export class UserService {
             pageOptionsArgs,
             itemCount,
         });
-        return new PaginationOutput<UserModel>(users, pageMetaOptions);
+        return new PaginatedUserResponseOutput(users, pageMetaOptions);
     }
 
-    async findAllWithoutPagination(): Promise<UserModel[]> {
-        const [users, itemCount] = await this.userRepository
-            .createQueryBuilder()
-            .getManyAndCount();
-
-        if (itemCount === 0) {
-            throw new NotFoundException('Not found users in database');
-        }
-        return users;
-    }
-
-    async findOneById(id: number): Promise<UserModel> {
+    public async findOneById(id: number): Promise<UserModel> {
         const foundUser = await this.userRepository
             .createQueryBuilder('user')
             .where('user.id = :id', { id })
@@ -80,7 +69,7 @@ export class UserService {
         return foundUser;
     }
 
-    async findUserByEmail(email: string): Promise<UserModel> {
+    public async findUserByEmail(email: string): Promise<UserModel> {
         return this.userRepository
             .createQueryBuilder('user')
             .addSelect(['user.password'])
@@ -88,7 +77,7 @@ export class UserService {
             .getOneOrFail();
     }
 
-    async updateById(
+    public async updateById(
         id: number,
         updateUserDto: UpdateUserInput,
     ): Promise<UserModel> {
@@ -114,7 +103,7 @@ export class UserService {
         return updatedUser;
     }
 
-    async removeById(id: number): Promise<UserModel> {
+    public async removeById(id: number): Promise<UserModel> {
         const removedUser = await typeReturn<UserModel>(
             this.userRepository
                 .createQueryBuilder()
@@ -130,7 +119,7 @@ export class UserService {
         return removedUser;
     }
 
-    async changeUserRole({
+    public async changeUserRole({
         userId,
         role,
     }: ChangeRoleInput): Promise<UserModel> {

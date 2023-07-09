@@ -1,18 +1,21 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { IsArray } from 'class-validator';
 import { PageMetaOutput } from './page-meta.output';
+import { IClassType } from '@/common/interfaces/class-type.interface';
 
-@ObjectType()
-export class PaginationOutput<T> {
-    // @Field()
-    @IsArray()
-    readonly data: T[];
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export const PaginationResponse = <TItem>(TItemClass: IClassType<TItem>) => {
+    @ObjectType({ isAbstract: true })
+    class PaginatedResponse {
+        @Field(() => [TItemClass])
+        readonly data: TItem[];
 
-    @Field(() => PageMetaOutput, { description: 'Meta data' })
-    readonly meta: PageMetaOutput;
+        @Field(() => PageMetaOutput, { description: 'Meta data' })
+        readonly meta: PageMetaOutput;
 
-    constructor(data: T[], meta: PageMetaOutput) {
-        this.data = data;
-        this.meta = meta;
+        constructor(items: TItem[], meta: PageMetaOutput) {
+            this.data = items;
+            this.meta = meta;
+        }
     }
-}
+    return PaginatedResponse;
+};

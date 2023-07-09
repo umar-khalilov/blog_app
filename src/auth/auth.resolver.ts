@@ -9,12 +9,16 @@ export class AuthResolver {
     constructor(private readonly authService: AuthService) {}
 
     @Mutation(() => UserAuthOutput, { description: 'Get user with tokens' })
-    async signUp(@Args('data') data: CreateUserInput): Promise<UserAuthOutput> {
+    public async signUp(
+        @Args('data') data: CreateUserInput,
+    ): Promise<UserAuthOutput> {
         return this.authService.signUp(data);
     }
 
     @Query(() => UserAuthOutput, { description: 'Get user with tokens' })
-    async signIn(@Args('data') data: SignInInput): Promise<UserAuthOutput> {
+    public async signIn(
+        @Args('data') data: SignInInput,
+    ): Promise<UserAuthOutput> {
         return this.authService.signIn(data);
     }
 }

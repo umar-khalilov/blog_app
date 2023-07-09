@@ -14,9 +14,9 @@ export class CreateBlogInput {
     @Field({ nullable: false, description: 'Blog details' })
     @Length(5, 3000, {
         message:
-            'descrtiption cannot be less than 5 and more than 3000 characters',
+            'description cannot be less than 5 and more than 3000 characters',
     })
-    @IsString({ message: 'descrtiption must be a string value' })
-    @IsNotEmpty({ message: 'descrtiption cannot be an empty value' })
+    @IsString({ message: 'description must be a string value' })
+    @IsNotEmpty({ message: 'description cannot be an empty value' })
     readonly description: string;
 }

@@ -3,7 +3,6 @@ import { Column, Entity, OneToMany, Relation } from 'typeorm';
 import { AbstractModel } from '../abstract/abstract.model';
 import { RoleTypes } from '@/common/enums/role-types.enum';
 import { BlogModel } from '../blogs/blog.model';
-// import { BlogModel } from '../blogs/blog.model';
 
 @ObjectType({ description: 'User model' })
 @Entity({ name: 'users' })

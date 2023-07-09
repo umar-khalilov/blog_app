@@ -9,21 +9,21 @@ import { BlogModel } from './blog.model';
 import { UserService } from '../users/user.service';
 import { CreateBlogInput } from './inputs/create-blog.input';
 import { PostgresErrorCode } from '@/app/database/constraints/errors.constraint';
-import { UpdateBlogInput } from './inputs/update-blog.dto';
-import { typeReturn } from '@/common/utils/helpers.util';
+import { UpdateBlogInput } from './inputs/update-blog.input';
 import { PageOptionsArgs } from '@/common/outputs/page-options.args';
-import { PaginationOutput } from '@/common/outputs/pagination.output';
 import { PageMetaOutput } from '@/common/outputs/page-meta.output';
+import { typeReturn } from '@/common/utils/helpers.util';
+import { PaginatedBlogResponseOutput } from '@/models/blogs/inputs/paginated-blog-response.output';
 
 @Injectable()
 export class BlogService {
-    constructor(
+    public constructor(
         @InjectRepository(BlogModel)
         private readonly blogRepository: Repository<BlogModel>,
         private readonly userService: UserService,
     ) {}
 
-    async createOne(
+    public async createOne(
         userId: number,
         data: CreateBlogInput,
     ): Promise<BlogModel | void> {
@@ -45,7 +45,10 @@ export class BlogService {
         });
     }
 
-    async findOneById(userId: number, blogId: number): Promise<BlogModel> {
+    public async findOneById(
+        userId: number,
+        blogId: number,
+    ): Promise<BlogModel> {
         await this.userService.findOneById(userId);
         const foundBlog = await this.blogRepository
             .createQueryBuilder()
@@ -60,7 +63,7 @@ export class BlogService {
         return foundBlog;
     }
 
-    async findAllPostsByBlogId(
+    public async findAllPostsByBlogId(
         userId: number,
         blogId: number,
     ): Promise<BlogModel> {
@@ -79,9 +82,9 @@ export class BlogService {
         return foundBlog;
     }
 
-    async findAll(
+    public async findAll(
         pageOptionsArgs: PageOptionsArgs,
-    ): Promise<PaginationOutput<BlogModel>> {
+    ): Promise<PaginatedBlogResponseOutput> {
         const { take, skip, order } = pageOptionsArgs;
 
         const [blogs, itemCount] = await this.blogRepository
@@ -98,21 +101,10 @@ export class BlogService {
             pageOptionsArgs,
             itemCount,
         });
-        return new PaginationOutput<BlogModel>(blogs, pageMetaOptions);
+        return new PaginatedBlogResponseOutput(blogs, pageMetaOptions);
     }
 
-    async findAllPostsWithoutPagination(): Promise<BlogModel[]> {
-        const [blogs, itemCount] = await this.blogRepository
-            .createQueryBuilder()
-            .getManyAndCount();
-
-        if (itemCount === 0) {
-            throw new NotFoundException('Not found blogs in database');
-        }
-        return blogs;
-    }
-
-    async updateById(
+    public async updateById(
         userId: number,
         blogId: number,
         data: UpdateBlogInput,
@@ -138,7 +130,10 @@ export class BlogService {
         return updatedBlog;
     }
 
-    async removeById(userId: number, blogId: number): Promise<BlogModel> {
+    public async removeById(
+        userId: number,
+        blogId: number,
+    ): Promise<BlogModel> {
         const { id: authorId } = await this.userService.findOneById(userId);
         const removedBlog = await typeReturn<BlogModel>(
             this.blogRepository

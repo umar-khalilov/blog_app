@@ -16,13 +16,13 @@ import { PostParamArgs } from './inputs/post-param.dto';
 
 @Injectable()
 export class PostService {
-    constructor(
+    public constructor(
         @InjectRepository(PostModel)
         private readonly postRepository: Repository<PostModel>,
         private readonly blogService: BlogService,
     ) {}
 
-    async createOne(
+    public async createOne(
         userId: number,
         blogId: number,
         data: CreatePostInput,
@@ -45,14 +45,14 @@ export class PostService {
         });
     }
 
-    async findAllPostsByBlogId(
+    public async findAllPostsByBlogId(
         userId: number,
         blogId: number,
     ): Promise<BlogModel> {
         return this.blogService.findAllPostsByBlogId(userId, blogId);
     }
 
-    async findOneByIds(ids: PostParamArgs): Promise<PostModel> {
+    public async findOneByIds(ids: PostParamArgs): Promise<PostModel> {
         const { userId, blogId, postId } = ids;
         await this.blogService.findOneById(userId, blogId);
         const foundPost = await this.postRepository
@@ -68,7 +68,7 @@ export class PostService {
         return foundPost;
     }
 
-    async updateByIds(
+    public async updateByIds(
         ids: PostParamArgs,
         data: UpdatePostInput,
     ): Promise<PostModel> {
@@ -94,7 +94,7 @@ export class PostService {
         return updatedPost;
     }
 
-    async removeByIds(ids: PostParamArgs): Promise<PostModel> {
+    public async removeByIds(ids: PostParamArgs): Promise<PostModel> {
         const { userId, blogId, postId } = ids;
         const blog = await this.blogService.findOneById(userId, blogId);
         const removedPost = await typeReturn<PostModel>(
