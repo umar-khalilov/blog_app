@@ -45,6 +45,6 @@ export class AppModule implements OnApplicationBootstrap {
     constructor(private readonly seedingService: SeedingService) {}
 
     async onApplicationBootstrap(): Promise<void> {
-        // await this.seedingService.seed();
+        await this.seedingService.seed();
     }
 }
