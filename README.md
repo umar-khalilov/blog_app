@@ -6,10 +6,11 @@ In this app you can manage blogs and posts
 
 Enjoy it!
 
-## Installation
+## Requirements
 
-You need install Docker: 23.0.1 and Docker Compose: v2.15.1 or latest version and type commands in CLI at the root directory of project.
-In Windows OS there may be problems with the makefile. Then you can type docker commands.
+You need install Docker: 23.0.1 and Docker Compose: v2.15.1 or latest version 
+and type commands in CLI at the root directory of project. 
+In Windows OS there may be problems with the makefile, but you can type docker commands.
 
 ## Running the app
 
@@ -48,7 +49,7 @@ After sign in you will get an access token. You must insert this token to http h
 }
 Then you may exec protected queries!
 
-# Deployed url
+# Public host
 
 ```http request
 https://first-blog-app.fly.dev/graphql
@@ -62,7 +63,6 @@ https://first-blog-app.fly.dev/graphql
     signIn(data: { email: "tzirw@example.com", password: "admin422I03Pfewq_3" }) {
     tokens {
     access
-    refresh
     }
     user {
     id
@@ -106,6 +106,18 @@ https://first-blog-app.fly.dev/graphql
     }
     }
 
+-   query {
+    findAllUsers {
+    id
+    name
+    surname
+    email
+    createdAt
+    updatedAt
+    role
+    }
+    }
+
 -   mutation {
     changeRole(data: { userId: 3, role: MODERATOR }) {
     id
@@ -127,20 +139,6 @@ https://first-blog-app.fly.dev/graphql
 -   mutation {
     removeUserById(userId: 2) {
     id
-    }
-    }
-
-### Get users without pagination
-
--   query {
-    findAllUsersWithoutPagination {
-    id
-    name
-    surname
-    email
-    createdAt
-    updatedAt
-    role
     }
     }
 
@@ -167,6 +165,16 @@ https://first-blog-app.fly.dev/graphql
     }
     }
 
+-   query {
+    findAllBlogs {
+    id
+    name
+    description
+    createdAt
+    updatedAt
+    }
+    }
+
 -   mutation {
     updateBlogByIds(
     userId: 3
@@ -181,18 +189,6 @@ https://first-blog-app.fly.dev/graphql
 -   mutation {
     removeBlogByIds(userId: 3, blogId: 1) {
     id
-    }
-    }
-
-### Get blogs without pagination
-
--   query {
-    findAllBlogsWithoutPagination {
-    id
-    name
-    description
-    createdAt
-    updatedAt
     }
     }
 
