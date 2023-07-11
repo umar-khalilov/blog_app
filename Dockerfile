@@ -4,10 +4,8 @@
 
 FROM node:18-alpine3.17 as development
 WORKDIR /usr/src/app
-COPY package.json ./
-COPY yarn.lock ./
-RUN yarn
-RUN yarn install --frozen-lockfile
+COPY package*.json ./
+RUN npm ci
 COPY  ./ ./
 EXPOSE 8080
 
@@ -19,9 +17,8 @@ FROM node:18-alpine3.17 as builder
 ENV NODE_ENV production
 WORKDIR /home/node
 COPY . /home/node/
-RUN yarn
-RUN yarn install -g @nestjs/cli
-RUN yarn install --frozen-lockfile && yarn build && yarn install --production --ignore-scripts --prefer-offline
+RUN npm install -g @nestjs/cli
+RUN npm ci && npm run build && npm prune --production
 
 ###################
 # PRODUCTION

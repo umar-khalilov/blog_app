@@ -52,7 +52,7 @@ Then you may exec protected queries!
 # Public host
 
 ```http request
-https://first-blog-app.fly.dev/graphql
+https://simple-blog-app.fly.dev/graphql
 ```
 
 ### Available requests:
